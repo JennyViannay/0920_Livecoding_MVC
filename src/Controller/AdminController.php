@@ -28,20 +28,22 @@ class AdminController extends AbstractController
             $article = $articleManager->selectOneById($id);
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if (isset($_POST['id']) && !empty($_POST['id'])) {
-                if (!empty($_POST['name']) && !empty($_POST['price']) && !empty($_POST['img'])) {
-                    $articleManager->update($_POST);
+            if (!empty($_POST['name']) && !empty($_POST['price']) && !empty($_POST['img'])) {
+                $data = [
+                    'id' => $id ? $id : '',
+                    'name' => $_POST['name'],
+                    'price' => $_POST['price'],
+                    'img' => $_POST['img']
+                ];
+                if (isset($_POST['id']) && !empty($_POST['id'])) {
+                    $articleManager->update($data);
                     header('Location:/admin/index');
                 } else {
-                    $errorForm = 'Tous les champs sont obligatoires.';
+                    $articleManager->insert($data);
+                    header('Location:/admin/index');
                 }
             } else {
-                if (!empty($_POST['name']) && !empty($_POST['price']) && !empty($_POST['img'])) {
-                    $articleManager->insert($_POST);
-                    header('Location:/admin/index');
-                } else {
-                    $errorForm = 'Tous les champs sont obligatoires.';
-                }
+                $errorForm = 'Tous les champs sont obligatoires.';
             }
         }
         return $this->twig->render('Admin/edit_article.html.twig', [
