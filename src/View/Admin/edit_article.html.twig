@@ -32,6 +32,9 @@
                     <label for="price">Picture *</label>
                     <input type="text" class="form-control" id="img" name="img" value="{{article.img}}">
                 </div>
+                <div class="text-center">
+                    <img src="" alt="" class="img-fluid" id="img-display">
+                </div>
                 <div class="small">* Champs obligatoires</div>
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -40,4 +43,11 @@
         </div>
     </div>
 </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        document.getElementById('img').addEventListener('change', (e) => {
+            document.getElementById('img-display').src = e.target.value;
+        })
+    </script>
 {% endblock %}
