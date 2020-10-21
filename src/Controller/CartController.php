@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Model\ArticleManager;
 use App\Model\CommandManager;
+use Stripe\Stripe;
 
 class CartController extends AbstractController
 {
@@ -65,6 +66,8 @@ class CartController extends AbstractController
 
     public function payment($infos)
     {
+        $stripe = \Stripe\Stripe::setApiKey(API_KEY);
+     
         $commandManager = new CommandManager();
         $data = [
             'name' => $infos['name'],
@@ -73,7 +76,32 @@ class CartController extends AbstractController
             'date' => date("Y-m-d")
         ];
         $commandManager->insert($data);
-        session_destroy();
-        return header('Location:/home/success');
+
+        try {
+            //CUSTOMER
+            $data = [
+                'source' => $_POST['stripeToken'],
+                'description' => $_POST['name'],
+                'email' => $_POST['email']
+            ];
+            $customer = \Stripe\Customer::create($data);
+    
+            // CHARGE
+            $charge = \Stripe\Charge::create([
+                'amount' => $this->getTotalCart(),
+                'currency' => 'eur',
+                'description' => 'Example charge',
+                'customer' => $customer->id,
+                'statement_descriptor' => 'Custom descriptor',
+            ]);
+            $transacUrl = $charge->receipt_url;
+            session_destroy();
+            $_SESSION['transaction'] = [
+                'stripe' => $transacUrl
+            ];
+            header('Location:/home/success');
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            $e->getError(); 
+        }
     }
 }
