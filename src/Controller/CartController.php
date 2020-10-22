@@ -67,7 +67,7 @@ class CartController extends AbstractController
     public function payment($infos)
     {
         $stripe = \Stripe\Stripe::setApiKey(API_KEY);
-        
+
         $commandManager = new CommandManager();
         $data = [
             'name' => $infos['name'],
@@ -84,7 +84,7 @@ class CartController extends AbstractController
                 'email' => $_POST['email']
             ];
             $customer = \Stripe\Customer::create($data);
-    
+
             $charge = \Stripe\Charge::create([
                 'amount' => $this->getTotalCart(),
                 'currency' => 'eur',
@@ -96,6 +96,21 @@ class CartController extends AbstractController
             unset($_SESSION['cart']);
             unset($_SESSION['count']);
             $_SESSION['transaction'] = $charge->receipt_url;
+
+            $sender = 'jenny.test4php@gmail.com';
+            $recipient = 'jenny.viannay75@gmail.com';
+
+            $subject = "Commande confirmée";
+            $message = "Félicitation, vous recevrez votre commande dans un délai de 48h !";
+            $headers = 'From:' . $sender;
+
+            $isSend = mail($recipient, $subject, $message, $headers);
+            if ($isSend) {
+                echo "Message accepted";
+            } else {
+                var_dump("Error: Message not accepted"); die;
+            }
+
             header('Location:/home/success');
         } catch (\Stripe\Exception\ApiErrorException $e) {
             $e->getError();
