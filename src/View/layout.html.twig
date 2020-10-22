@@ -21,7 +21,6 @@
         <a class="navbar-brand" href="/">Livecoding PDO </a>
         <ul class="nav">
             <li class="nav-item">
-                <!-- CONDITIONS D'AFFICHAGE : -->
                 {% if session.cart %}
                     <a href="/home/cart" class="nav-link btn">
                         <i class="fas fa-shopping-cart"></i> 
@@ -31,9 +30,18 @@
                     <a href="/home/cart" class="nav-link btn"><i class="fas fa-shopping-cart"></i></a>
                 {% endif %}
             </li>
+            {% if session.username %}
             <li class="nav-item">
                 <a href="/admin/index" class="nav-link btn"><i class="fas fa-user-ninja"></i></a>
             </li>
+            <li class="nav-item">
+                <a href="/security/logout" class="nav-link btn"><i class="fas fa-sign-out-alt"> {{session.username}} </i></a>
+            </li>
+            {% else %}
+             <li class="nav-item">
+                <a href="/security/login" class="nav-link btn"><i class="fas fa-sign-in-alt"></i></a>
+            </li>
+            {% endif %}
         </ul>
     </nav>
 {% block content %}{% endblock %}

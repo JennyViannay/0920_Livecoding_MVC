@@ -9,6 +9,9 @@ class AdminController extends AbstractController
 {
     public function index()
     {
+        if (!isset($_SESSION['username'])) {
+            header('Location:/home/index');
+        }
         $commandManager = new CommandManager();
         $articleManager = new ArticleManager();
         $articles = $articleManager->selectAll();
@@ -21,27 +24,18 @@ class AdminController extends AbstractController
 
     public function editArticle($id = null)
     {
+        if (!isset($_SESSION['username'])) {
+            header('Location:/home/index');
+        }
         $articleManager = new ArticleManager();
         $errorForm = null;
         $article = null;
-        if ($id != null){
+        if ($id != null) {
             $article = $articleManager->selectOneById($id);
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($_POST['name']) && !empty($_POST['price']) && !empty($_POST['img'])) {
-                $data = [
-                    'id' => $id ? $id : '',
-                    'name' => $_POST['name'],
-                    'price' => $_POST['price'],
-                    'img' => $_POST['img']
-                ];
-                if (isset($_POST['id']) && !empty($_POST['id'])) {
-                    $articleManager->update($data);
-                    header('Location:/admin/index');
-                } else {
-                    $articleManager->insert($data);
-                    header('Location:/admin/index');
-                }
+                $this->traitement($_POST, $id);
             } else {
                 $errorForm = 'Tous les champs sont obligatoires.';
             }
@@ -50,6 +44,24 @@ class AdminController extends AbstractController
             'article' => $article ? $article : null,
             'errorForm' => $errorForm
         ]);
+    }
+
+    public function traitement($data, $id)
+    {
+        $articleManager = new ArticleManager();
+        $data = [
+            'id' => $id ? $id : '',
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'img' => $data['img']
+        ];
+        if (isset($data['id']) && !empty($data['id'])) {
+            $articleManager->update($data);
+            header('Location:/admin/index');
+        } else {
+            $articleManager->insert($data);
+            header('Location:/admin/index');
+        }
     }
 
     public function deleteArticle($id)
