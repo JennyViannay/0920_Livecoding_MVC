@@ -66,6 +66,8 @@ class CartController extends AbstractController
 
     public function payment($infos)
     {
+        $stripe = \Stripe\Stripe::setApiKey(API_KEY);
+        
         $commandManager = new CommandManager();
         $data = [
             'name' => $infos['name'],
