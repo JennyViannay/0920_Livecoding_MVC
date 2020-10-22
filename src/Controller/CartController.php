@@ -105,9 +105,7 @@ class CartController extends AbstractController
             $headers = 'From:' . $sender;
 
             $isSend = mail($recipient, $subject, $message, $headers);
-            if ($isSend) {
-                echo "Message accepted";
-            } else {
+            if (!$isSend) {
                 var_dump("Error: Message not accepted"); die;
             }
 
