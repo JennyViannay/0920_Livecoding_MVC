@@ -31,7 +31,7 @@ class CartController extends AbstractController
 
     function getCartInfos()
     {
-        if(isset($_SESSION['cart'])){
+        if (isset($_SESSION['cart'])) {
             $cart = $_SESSION['cart'];
             $cartInfos = [];
             $articleManager = new ArticleManager();
@@ -78,7 +78,6 @@ class CartController extends AbstractController
         $commandManager->insert($data);
 
         try {
-            //CUSTOMER
             $data = [
                 'source' => $_POST['stripeToken'],
                 'description' => $_POST['name'],
@@ -86,7 +85,6 @@ class CartController extends AbstractController
             ];
             $customer = \Stripe\Customer::create($data);
     
-            // CHARGE
             $charge = \Stripe\Charge::create([
                 'amount' => $this->getTotalCart(),
                 'currency' => 'eur',
@@ -94,14 +92,13 @@ class CartController extends AbstractController
                 'customer' => $customer->id,
                 'statement_descriptor' => 'Custom descriptor',
             ]);
-            $transacUrl = $charge->receipt_url;
-            session_destroy();
-            $_SESSION['transaction'] = [
-                'stripe' => $transacUrl
-            ];
+
+            unset($_SESSION['cart']);
+            unset($_SESSION['count']);
+            $_SESSION['transaction'] = $charge->receipt_url;
             header('Location:/home/success');
         } catch (\Stripe\Exception\ApiErrorException $e) {
-            $e->getError(); 
+            $e->getError();
         }
     }
 }
