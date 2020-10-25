@@ -40,10 +40,8 @@
         <div class="alert alert-danger" role="alert">
             {{ errorForm }}
         </div>
-        <div class="alert alert-danger" role="alert">
-            <p id="card-errors"></p>
-        </div>
         {% endif %}
+        <div class="alert alert-danger d-none" role="alert" id="card-errors"></div>
         <hr class="my-4">
         <form method="POST">
             <input type="text" class="d-none" name="payment">
@@ -83,26 +81,27 @@
     var stripe = Stripe('pk_test_iQgBUXqWjZa5DkyikWWKdami00Fauo176W');
 
     let form = document.getElementById('card');
+    let displayError = document.getElementById('card-errors')
     let inputToken = document.getElementById('token')
     let submitButton = document.getElementById('submit')
 
     var elements = stripe.elements();
-    console.log(elements);
     var cardElement = elements.create('card');
 
     cardElement.mount(form);
     cardElement.on('change', (event) => {
-        var displayError = document.getElementById('card-errors');
         if (event.complete) {
             stripe.createToken(cardElement).then(result => {
                 if (result.token) {
                     inputToken.value = result.token.id;
                     submitButton.classList.remove('disabled');
+                    displayError.classList.add('d-none');
                 } else if (result.error) {
                     alert(result.error)
                 }
             })
         } else if (event.error) {
+            displayError.classList.remove('d-none');
             displayError.textContent = event.error.message;
         }
     });
