@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Model\ArticleManager;
-use App\Controller\CartController;
+use App\Service\CartService;
 
 class HomeController extends AbstractController
 {
@@ -18,16 +18,16 @@ class HomeController extends AbstractController
      */
     public function index()
     {
-        $cartController = new CartController();
+        $cartService = new CartService();
         $articleManager = new ArticleManager();
         $articles = $articleManager->selectAll();
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             if (!empty($_POST['search'])) {
-                $articles = $articleManager->searchArticles($_POST['search']);
+                $articles = $articleManager->search($_POST['search']);
             }
             if (!empty($_POST['add_article'])) {
                 $article = $_POST['add_article'];
-                $cartController->addArticle($article);
+                $cartService->add($article);
             }
         }
         return $this->twig->render('Home/index.html.twig', [
@@ -37,13 +37,13 @@ class HomeController extends AbstractController
 
     public function showArticle($id)
     {
-        $cartController = new CartController();
+        $cartService = new CartService();
         $articleManager = new ArticleManager();
         $article = $articleManager->selectOneById($id);
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             if (!empty($_POST['add_article'])) {
                 $article = $_POST['add_article'];
-                $cartController->addArticle($article);
+                $cartService->add($article);
             }
         }
         return $this->twig->render('Home/show_article.html.twig', ['article' => $article]);
@@ -51,24 +51,24 @@ class HomeController extends AbstractController
 
     public function cart()
     {
-        $cartController = new CartController();
+        $cartService = new CartService();
         $errorForm = null;
         if($_SERVER['REQUEST_METHOD'] === 'POST'){
             if (isset($_POST['delete_id'])) {
                 $article = $_POST['delete_id'];
-                $cartController->deleteArticle($article);
+                $cartService->delete($article);
             }
             if (isset($_POST['payment'])) {
                 if (!empty($_POST['name']) && !empty($_POST['address'])) {
-                    $cartController->payment($_POST);
+                    $cartService->payment($_POST);
                 } else {
                     $errorForm = "Tous les champs sont obligatoires !";
                 }
             }
         }
         return $this->twig->render('Home/cart.html.twig', [
-            'cartInfos' => $cartController->getCartInfos() ? $cartController->getCartInfos() : null,
-            'total' => $cartController->getCartInfos() ? $cartController->getTotalCart() : null,
+            'cartInfos' => $cartService->cartInfos() ? $cartService->cartInfos() : null,
+            'total' => $cartService->cartInfos() ? $cartService->totalCart() : null,
             'errorForm' => $errorForm
         ]);
     }

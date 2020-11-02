@@ -35,7 +35,7 @@ class AdminController extends AbstractController
         }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($_POST['name']) && !empty($_POST['price']) && !empty($_POST['img'])) {
-                $this->traitement($_POST, $id);
+                $this->sendArticle($_POST, $id);
             } else {
                 $errorForm = 'Tous les champs sont obligatoires.';
             }
@@ -46,7 +46,7 @@ class AdminController extends AbstractController
         ]);
     }
 
-    public function traitement($data, $id)
+    public function sendArticle($data, $id)
     {
         $articleManager = new ArticleManager();
         $data = [

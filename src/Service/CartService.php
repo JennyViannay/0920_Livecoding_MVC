@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Controller;
+namespace App\Service;
 
 use App\Model\ArticleManager;
 use App\Model\CommandManager;
 use Stripe\Stripe;
 
-class CartController extends AbstractController
+class CartService
 {
-    public function addArticle($article)
+    public function add($article)
     {
         if (!empty($_SESSION['cart'][$article])) {
             $_SESSION['cart'][$article]++;
@@ -19,7 +19,7 @@ class CartController extends AbstractController
         header('Location:/home/index');
     }
 
-    function deleteArticle($article)
+    function delete($article)
     {
         $cart = $_SESSION['cart'];
         if (!empty($cart[$article])) {
@@ -29,7 +29,7 @@ class CartController extends AbstractController
         header('Location:/home/cart');
     }
 
-    function getCartInfos()
+    function cartInfos()
     {
         if (isset($_SESSION['cart'])) {
             $cart = $_SESSION['cart'];
@@ -46,10 +46,10 @@ class CartController extends AbstractController
         }
     }
 
-    function getTotalCart()
+    function totalCart()
     {
         $total = 0;
-        foreach ($this->getCartInfos() as $item) {
+        foreach ($this->cartInfos() as $item) {
             $total += $item['qty'] * $item['price'];
         }
         return $total;
@@ -58,7 +58,7 @@ class CartController extends AbstractController
     public function countArticles()
     {
         $total = 0;
-        foreach ($this->getCartInfos() as $item) {
+        foreach ($this->cartInfos() as $item) {
             $total += $item['qty'];
         }
         return $total;
@@ -72,7 +72,7 @@ class CartController extends AbstractController
         $data = [
             'name' => $infos['name'],
             'address' => $infos['address'],
-            'total' => $this->getTotalCart(),
+            'total' => $this->totalCart(),
             'date' => date("Y-m-d")
         ];
         $commandManager->insert($data);
@@ -86,7 +86,7 @@ class CartController extends AbstractController
             $customer = \Stripe\Customer::create($data);
 
             $charge = \Stripe\Charge::create([
-                'amount' => $this->getTotalCart(),
+                'amount' => $this->totalCart(),
                 'currency' => 'eur',
                 'description' => 'Example charge',
                 'customer' => $customer->id,

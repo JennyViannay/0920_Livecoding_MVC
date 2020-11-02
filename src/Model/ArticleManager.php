@@ -20,7 +20,7 @@ class ArticleManager extends AbstractManager
         parent::__construct(self::TABLE);
     }
 
-    public function searchArticles(string $term): array
+    public function search(string $term): array
     {
         $statement = $this->pdo->prepare("SELECT * FROM " . self::TABLE . " WHERE name LIKE :search ORDER BY name ASC");
         $statement->bindValue('search', $term.'%', \PDO::PARAM_STR);
